@@ -31,13 +31,23 @@ int convertToLower(char *word, char *convertedWord) {
 }
 
 
-int main() {
-    char word[MAXWORDLEN + 1];
-    char lcword[MAXWORDLEN + 1];
-    strcpy(word, "NargGLEs");
-    convertToLower(word, lcword);
+int insertWord(FILE *fp, char *word){
+    char wordToConvert[MAXWORDLEN + 1];
+    char lowerCaseWord[MAXWORDLEN + 1];
+    strcpy(wordToConvert, word);
+    convertToLower(wordToConvert, lowerCaseWord);
+    printf("%s", lowerCaseWord);
 
-    printf("%s", word);
-    printf("\n%s", lcword);
+}
+
+
+int main() {
+
+    FILE *fp;
+    fp = fopen("word.dat", "w");
+
+    insertWord(fp, "PigWidGeon");
+
+
 
 }
