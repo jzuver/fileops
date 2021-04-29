@@ -9,7 +9,6 @@ typedef struct {
 } Record;
 
 
-
-
-
 #endif //FILEOPS_FILEOPS_JZUVER_JCPUTNAM_H
+
+
