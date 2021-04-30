@@ -35,6 +35,7 @@ int insertWord(FILE *fp, char *word){
     char wordToConvert[MAXWORDLEN + 1];
     char lowerCaseWord[MAXWORDLEN + 1];
     long buffer[MAXWORDLEN*8*100];
+    long fileSize[1];
     strcpy(wordToConvert, word);
     convertToLower(wordToConvert, lowerCaseWord);
     printf("%s", lowerCaseWord);
@@ -43,6 +44,18 @@ int insertWord(FILE *fp, char *word){
     fseek(fp, offset,SEEK_SET);
     fread(buffer, 8, 1, fp);
     printf("\n\n%ld", *buffer);
+    if(*buffer == 0){
+    	fseek(fp, 0L, SEEK_END);
+    	fileSize[0] = ftell(fp);
+    	fseek(fp, offset, SEEK_SET);
+    	printf("%i", fileSize[0]);
+    	fwrite(fileSize, sizeof(long), 1, fp);
+    	fseek(fp, 0L, SEEK_END);
+
+    }
+    else{
+    	;
+    }
     return 0;
 
 }
