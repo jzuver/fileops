@@ -34,14 +34,15 @@ int convertToLower(char *word, char *convertedWord) {
 int insertWord(FILE *fp, char *word){
     char wordToConvert[MAXWORDLEN + 1];
     char lowerCaseWord[MAXWORDLEN + 1];
-    char buffer[MAXWORDLEN*8];
+    long buffer[MAXWORDLEN*8*100];
     strcpy(wordToConvert, word);
     convertToLower(wordToConvert, lowerCaseWord);
     printf("%s", lowerCaseWord);
     int num = lowerCaseWord[0] - 'a';
     int offset = 8*num;
     fseek(fp, offset,SEEK_SET);
-    //fread(buffer, 8)
+    fread(buffer, 8, 1, fp);
+    printf("\n\n%ld", *buffer);
     return 0;
 
 }
@@ -50,7 +51,7 @@ int insertWord(FILE *fp, char *word){
 int main() {
 
     FILE *fp;
-    fp = fopen("word.dat", "w");
+    fp = fopen("word.dat", "w+");
     long lp[26];
 	long n = 0;
    	for(int i=0;i<26;++i){
@@ -59,7 +60,7 @@ int main() {
    	fwrite(lp, sizeof(long), 26, fp);
    	int filesize = ftell(fp);
    	printf("%d", filesize);
-    //insertWord(fp, "PigWidGeon");
+    insertWord(fp, "PigWidGeon");
 
 
 
