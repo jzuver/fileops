@@ -48,7 +48,6 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
 	fseek(fp, 0L, SEEK_END);
 	fileSize[0] = ftell(fp);
 
-
     if(*buffer == 0){
 
     	// seek to position of index to write (offset is index position)
@@ -63,6 +62,10 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     	rec->nextpos = 0;
     	fwrite(rec, sizeof(Record), 1, fp);
     }
+    // else - num in buffer is not zero, points to a location of another record.
+    // go to that record, while loop check if nextpos is zero
+    //upon finding zero, write the same record with nextpos = end of file
+    // then go to end of file and write new record
     else{
     	Record *record = (Record*) malloc(sizeof(Record));
     	//look where buffer is pointing
@@ -73,18 +76,17 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
         	fseek(fp, record->nextpos, SEEK_SET);
         	fread(record, sizeof(Record), 1, fp);
     	}
+    	fseek(fp, *buffer, SEEK_SET);
     	//we are now looking at the record with nextpos = 0
     	//write record with same value, but now with pointer to filesize
-        fseek(fp, *buffer, SEEK_SET);
     	Record *rec = (Record*) malloc(sizeof(Record));
-    	strcpy(rec->word, word);
-        fileSize[0] = ftell(fp);
+    	strcpy(rec->word, record->word);
     	rec->nextpos = fileSize[0];
     	fwrite(rec, sizeof(Record), 1, fp);
-        fseek(fp, 0L, SEEK_END);
-        Record *newRec = (Record*) malloc(sizeof(Record));
-        strcpy(newRec->word, word);
-        newRec->nextpos = 0;
+    	fseek(fp, *fileSize, SEEK_SET);
+    	strcpy(record->word, word);
+    	fwrite(record, sizeof(Record), 1, fp);
+
 
     }
     return 0;
@@ -104,7 +106,8 @@ int main() {
    	fwrite(lp, sizeof(long), 26, fp);
    	int filesize = ftell(fp);
    	//printf("%d", filesize);
-    insertWord(fp, "Pidwigeon");
+    insertWord(fp, "PigWidGeon");
+    insertWord(fp, "AHHHH");
     insertWord(fp, "PartyAnimal");
 
 
