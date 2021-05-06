@@ -58,15 +58,17 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     	Record *rec = (Record*) malloc(sizeof(Record));
     	strcpy(rec->word, lowerCaseWord);
     	rec->nextpos = 0;
-    	fwrite(fileSize, sizeof(long), 1, fp);
+    	fwrite(rec, sizeof(Record), 1, fp);
     }
     else{
+    	Record *record;
     	//look where buffer is pointing
-    	//fseek(fp, )
-    	//while nextpos != 0, continue to search
-    	//while(1){
-    		;
-    	//}
+    	fseek(fp, *buffer, SEEK_SET);
+    	fread(&record, sizeof(Record), 1, fp);
+    	while(record->nextpos != 0){
+        	fseek(fp, *buffer, SEEK_SET);
+        	fread(&record, sizeof(Record), 1, fp);
+    	}
     }
     return 0;
 
@@ -86,6 +88,8 @@ int main() {
    	int filesize = ftell(fp);
    	//printf("%d", filesize);
     insertWord(fp, "PigWidGeon");
+    insertWord(fp, "PartyAnimal");
+
 
 
 
