@@ -43,10 +43,13 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     fseek(fp, offset,SEEK_SET);
     fread(buffer, 8, 1, fp);
     //printf("\n\n%ld buffer", *buffer);
+
+	// seek end to find filesize
+	fseek(fp, 0L, SEEK_END);
+	fileSize[0] = ftell(fp);
+
+
     if(*buffer == 0){
-    	// seek end to find filesize
-    	fseek(fp, 0L, SEEK_END);
-    	fileSize[0] = ftell(fp);
 
     	// seek to position of index to write (offset is index position)
     	//printf("\n%i filesize", fileSize[0]); //debug print stmnt
@@ -59,19 +62,24 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     	strcpy(rec->word, lowerCaseWord);
     	rec->nextpos = 0;
     	fwrite(rec, sizeof(Record), 1, fp);
-        printf("if");
     }
     else{
-
     	Record *record = (Record*) malloc(sizeof(Record));
     	//look where buffer is pointing
     	fseek(fp, *buffer, SEEK_SET);
     	fread(record, sizeof(Record), 1, fp);
-    	printf("%ld", record->nextpos);
-//    	while(record->nextpos != 0){
-//        	fseek(fp, *buffer, SEEK_SET);
-//        	fread(&record, sizeof(Record), 1, fp);
-//    	}
+    	printf("%s", record->word);
+    	while(record->nextpos != 0){
+        	fseek(fp, record->nextpos, SEEK_SET);
+        	fread(record, sizeof(Record), 1, fp);
+    	}
+    	//we are now looking at the record with nextpos = 0
+    	//write record with same value, but now with pointer to filesize
+    	Record *rec = (Record*) malloc(sizeof(Record));
+    	strcpy(rec->word, word);
+    	rec->nextpos = fileSize;
+    	fwrite(rec, sizeof(Record), 1, fp);
+
 
     }
     return 0;
