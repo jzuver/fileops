@@ -71,6 +71,8 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     	//look where buffer is pointing
     	fseek(fp, *buffer, SEEK_SET);
     	fread(record, sizeof(Record), 1, fp);
+    	char originalRecordWord[MAXWORDLEN + 1];
+    	strcpy(originalRecordWord, record->word);
     	printf("%s", record->word);
     	while(record->nextpos != 0){
         	fseek(fp, record->nextpos, SEEK_SET);
@@ -80,11 +82,12 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     	//we are now looking at the record with nextpos = 0
     	//write record with same value, but now with pointer to filesize
     	Record *rec = (Record*) malloc(sizeof(Record));
-    	strcpy(rec->word, record->word);
+    	strcpy(rec->word, originalRecordWord);
     	rec->nextpos = fileSize[0];
     	fwrite(rec, sizeof(Record), 1, fp);
-    	fseek(fp, *fileSize, SEEK_SET);
+    	fseek(fp, 0L, SEEK_END);
     	strcpy(record->word, word);
+    	record->nextpos = 0;
     	fwrite(record, sizeof(Record), 1, fp);
 
 
@@ -106,10 +109,12 @@ int main() {
    	fwrite(lp, sizeof(long), 26, fp);
    	int filesize = ftell(fp);
    	//printf("%d", filesize);
-    insertWord(fp, "PigWidGeon");
-    insertWord(fp, "AHHHH");
-    insertWord(fp, "PartyAnimal");
-
+    insertWord(fp, "nargles");
+    insertWord(fp, "hermione");
+    insertWord(fp, "niffler");
+    insertWord(fp, "fawkes");
+    insertWord(fp, "nagini");
+    insertWord(fp, "firenze");
 
 
 
