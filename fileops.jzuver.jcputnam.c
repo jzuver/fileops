@@ -65,10 +65,11 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     	//look where buffer is pointing
     	fseek(fp, *buffer, SEEK_SET);
     	fread(&record, sizeof(Record), 1, fp);
-    	while(record->nextpos != 0){
-        	fseek(fp, *buffer, SEEK_SET);
-        	fread(&record, sizeof(Record), 1, fp);
-    	}
+    	printf("%s", record->word);
+//    	while(record->nextpos != 0){
+//        	fseek(fp, *buffer, SEEK_SET);
+//        	fread(&record, sizeof(Record), 1, fp);
+//    	}
     }
     return 0;
 
