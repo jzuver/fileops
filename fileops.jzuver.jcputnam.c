@@ -97,8 +97,42 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
 }
 
 
-int main() {
+int countWords(FILE *fp, char letter, int *count){
+    int numWords = 0;
+    int num = letter - 'a';
+    int offset = 8*num;
+    long buffer[MAXWORDLEN*8*100];
 
+    printf("%d", offset);
+    if (fp == NULL){
+        return *count;
+    }
+
+    // fseek to where letter first word should be
+    fseek(fp, offset,SEEK_SET);
+    fread(buffer, 8, 1, fp);
+
+    if (*buffer == 0){
+        return *count;
+    }
+    else{
+        fseek(fp, *buffer, SEEK_SET);
+        Record *record = (Record*) malloc(sizeof(Record));
+        fread(record, sizeof(Record), 1, fp);
+        *count = *count + 1;
+        while(record->nextpos != 0){
+            fseek(fp, record->nextpos, SEEK_SET);
+            fread(record, sizeof(Record), 1, fp);
+            *count = *count + 1;
+        }
+        *count = *count + 1;
+        return *count;
+    }
+}
+
+
+int main() {
+    int wordCount = 0;
     FILE *fp;
     fp = fopen("word.dat", "w+");
     long lp[26];
@@ -115,6 +149,12 @@ int main() {
     insertWord(fp, "fawkes");
     insertWord(fp, "nagini");
     insertWord(fp, "firenze");
+    countWords(fp, 'f', &wordCount);
+
+
+    printf("\n Num words: %d", wordCount);
+
+
 
 
 
