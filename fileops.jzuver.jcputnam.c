@@ -1,37 +1,36 @@
 #include "fileops.jzuver.jcputnam.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 
 
+
+
 int checkWord(char *word) {
     int i, len;
-
     len = strlen(word);
     for (i=0; i<len; ++i) {
         if ( ! isalpha(word[i]) )
             return 1;
     }
-
     return 0;
 }
 
 
 int convertToLower(char *word, char *convertedWord) {
     int i, len;
-
     strcpy(convertedWord, word);
-
     len = strlen(word);
     for (i=0; i<len; ++i)
         convertedWord[i] = tolower(word[i]);
-
     return 0;
 }
 
 
-int insertWord(FILE *fp, char *word){
+
+int insertWord(FILE *fp, char *word){ //Still need to use checkword
     char wordToConvert[MAXWORDLEN + 1];
     char lowerCaseWord[MAXWORDLEN + 1];
     long buffer[MAXWORDLEN*8*100];
@@ -43,18 +42,31 @@ int insertWord(FILE *fp, char *word){
     int offset = 8*num;
     fseek(fp, offset,SEEK_SET);
     fread(buffer, 8, 1, fp);
-    printf("\n\n%ld", *buffer);
+    printf("\n\n%ld buffer", *buffer);
     if(*buffer == 0){
+    	// seek end to find filesize
     	fseek(fp, 0L, SEEK_END);
     	fileSize[0] = ftell(fp);
-    	fseek(fp, offset, SEEK_SET);
-    	printf("%i", fileSize[0]);
-    	fwrite(fileSize, sizeof(long), 1, fp);
-    	fseek(fp, 0L, SEEK_END);
 
+    	// seek to position of index to write (offset is index position)
+    	printf("\n%i filesize", fileSize[0]); //debug print stmnt
+    	fseek(fp, offset, SEEK_SET);
+    	fwrite(fileSize, sizeof(long), 1, fp);
+    	fseek(fp, 0L, SEEK_END); // go back to end to write record
+
+    	// create record to be written to end
+    	Record *rec = (Record*) malloc(sizeof(Record));
+    	strcpy(rec->word, lowerCaseWord);
+    	rec->nextpos = 0;
+    	fwrite(fileSize, sizeof(long), 1, fp);
     }
     else{
-    	;
+    	//look where buffer is pointing
+    	//fseek(fp, )
+    	//while nextpos != 0, continue to search
+    	//while(1){
+    		;
+    	//}
     }
     return 0;
 
@@ -72,7 +84,7 @@ int main() {
     }
    	fwrite(lp, sizeof(long), 26, fp);
    	int filesize = ftell(fp);
-   	printf("%d", filesize);
+   	//printf("%d", filesize);
     insertWord(fp, "PigWidGeon");
 
 
