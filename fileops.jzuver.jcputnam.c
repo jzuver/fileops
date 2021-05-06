@@ -63,11 +63,11 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     }
     else{
 
-    	Record *record = (Record*) malloc(sizeof(Record));;
+    	Record *record = (Record*) malloc(sizeof(Record));
     	//look where buffer is pointing
     	fseek(fp, *buffer, SEEK_SET);
-
-    	printf("%s", record->word);
+    	fread(record, sizeof(Record), 1, fp);
+    	printf("%ld", record->nextpos);
 //    	while(record->nextpos != 0){
 //        	fseek(fp, *buffer, SEEK_SET);
 //        	fread(&record, sizeof(Record), 1, fp);
