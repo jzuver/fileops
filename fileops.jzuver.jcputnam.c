@@ -33,22 +33,22 @@ int convertToLower(char *word, char *convertedWord) {
 int insertWord(FILE *fp, char *word){ //Still need to use checkword
     char wordToConvert[MAXWORDLEN + 1];
     char lowerCaseWord[MAXWORDLEN + 1];
-    long buffer[MAXWORDLEN*8*100];
+    long buffer[sizeof(Record)];
     long fileSize[1];
     strcpy(wordToConvert, word);
     convertToLower(wordToConvert, lowerCaseWord);
     //printf("%s", lowerCaseWord);
     int num = lowerCaseWord[0] - 'a';
     int offset = 8*num;
-    fseek(fp, offset,SEEK_SET);
+    fseek(fp, offset, SEEK_SET);
     fread(buffer, 8, 1, fp);
     //printf("\n\n%ld buffer", *buffer);
 
-	// seek end to find filesize
-	fseek(fp, 0L, SEEK_END);
-	fileSize[0] = ftell(fp);
 
     if(*buffer == 0){
+    	// seek end to find filesize
+    	fseek(fp, 0L, SEEK_END);
+    	fileSize[0] = ftell(fp);
 
     	// seek to position of index to write (offset is index position)
     	//printf("\n%i filesize", fileSize[0]); //debug print stmnt
@@ -62,33 +62,36 @@ int insertWord(FILE *fp, char *word){ //Still need to use checkword
     	rec->nextpos = 0;
     	fwrite(rec, sizeof(Record), 1, fp);
     }
-    // else - num in buffer is not zero, points to a location of another record.
-    // go to that record, while loop check if nextpos is zero
-    //upon finding zero, write the same record with nextpos = end of file
-    // then go to end of file and write new record
+    // already a word with that letter. search until you get to the one that has nextpos = 0
     else{
+    	int rc;
+    	char originalRecordWord[64];
+    	rc = fseek(fp, 0L, SEEK_END);
+    	*fileSize = ftell(fp);
+    	int v = *buffer;
     	Record *record = (Record*) malloc(sizeof(Record));
-    	//look where buffer is pointing
-    	fseek(fp, *buffer, SEEK_SET);
+    	rc = fseek(fp, v, SEEK_SET);
     	fread(record, sizeof(Record), 1, fp);
-    	char originalRecordWord[MAXWORDLEN + 1];
     	strcpy(originalRecordWord, record->word);
-    	printf("%s", record->word);
     	while(record->nextpos != 0){
-        	fseek(fp, record->nextpos, SEEK_SET);
-        	fread(record, sizeof(Record), 1, fp);
+        	rc = fseek(fp, record->nextpos, SEEK_SET);
+        	rc = fread(record, sizeof(Record), 1, fp);
     	}
-    	fseek(fp, *buffer, SEEK_SET);
-    	//we are now looking at the record with nextpos = 0
-    	//write record with same value, but now with pointer to filesize
-    	Record *rec = (Record*) malloc(sizeof(Record));
-    	strcpy(rec->word, originalRecordWord);
-    	rec->nextpos = fileSize[0];
-    	fwrite(rec, sizeof(Record), 1, fp);
-    	fseek(fp, 0L, SEEK_END);
-    	strcpy(record->word, word);
-    	record->nextpos = 0;
-    	fwrite(record, sizeof(Record), 1, fp);
+    	fseek(fp, -sizeof(Record), SEEK_CUR);
+    	//we're at the end of the thing
+
+    	//make this record the same but pointing to the end of the file
+    	Record *record1 = (Record*) malloc(sizeof(Record));
+    	strcpy(record1->word, record->word);
+    	record1->nextpos = *fileSize;
+    	rc = fwrite(record1, sizeof(Record), 1, fp);
+    	rc = fseek(fp, 0L, SEEK_END);
+
+    	//jump to the end of the file, add new record
+    	Record *record2 = (Record*) malloc(sizeof(Record));
+    	strcpy(record2->word, word);
+    	record2->nextpos = 0;
+    	rc = fwrite(record2, sizeof(Record), 1, fp);
 
 
     }
@@ -121,11 +124,10 @@ int countWords(FILE *fp, char letter, int *count){
         fread(record, sizeof(Record), 1, fp);
         *count = *count + 1;
         while(record->nextpos != 0){
+            *count = *count + 1;
             fseek(fp, record->nextpos, SEEK_SET);
             fread(record, sizeof(Record), 1, fp);
-            *count = *count + 1;
         }
-        *count = *count + 1;
         return *count;
     }
 }
@@ -149,13 +151,7 @@ int main() {
     insertWord(fp, "fawkes");
     insertWord(fp, "nagini");
     insertWord(fp, "firenze");
-    countWords(fp, 'f', &wordCount);
-
-
-    printf("\n Num words: %d", wordCount);
-
-
-
-
+    countWords(fp, 'h', &wordCount);
+    printf("num of character n: %d", wordCount);
 
 }
