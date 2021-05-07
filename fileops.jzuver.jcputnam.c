@@ -110,7 +110,6 @@ int countWords(FILE *fp, char letter, int *count){
     if (fp == NULL){
         return *count;
     }
-
     // fseek to where letter first word should be
     fseek(fp, offset,SEEK_SET);
     fread(buffer, 8, 1, fp);
@@ -129,6 +128,54 @@ int countWords(FILE *fp, char letter, int *count){
             fread(record, sizeof(Record), 1, fp);
         }
         return *count;
+    }
+}
+
+char** getWords(FILE *fp, char charletter){
+    int wordCount = 0;
+	int totNumWords = countWords(fp, charletter, &wordCount);
+	char** rtnval;
+	rtnval = (char**) malloc(sizeof(char *));
+	rtnval[0] = NULL;
+    int num = charletter - 'a';
+    int offset = 8*num;
+    long buffer[MAXWORDLEN*8*100];
+
+    if (fp == NULL){
+        return rtnval;
+    }
+    // fseek to where letter first word should be
+    fseek(fp, offset,SEEK_SET);
+    fread(buffer, 8, 1, fp);
+
+    if (*buffer == 0){
+        return rtnval;
+    }
+    else{
+    	char tmp[32];
+        fseek(fp, *buffer, SEEK_SET);
+        Record *record = (Record*) malloc(sizeof(Record));
+        fread(record, sizeof(Record), 1, fp);
+        strcpy(tmp, record->word);
+        rtnval[0] = tmp;
+
+        int index = 0;
+        while(record->nextpos != 0){
+        	char *tmpNew = strdup(tmp);
+        	//char *tmp2 = rtnval[index];
+        	//strcpy(tmp2, record->word);
+        	//rtnval[index] = record->word;
+            //rtnval[index+1] = NULL;
+        	//index++;
+        	fseek(fp, record->nextpos, SEEK_SET);
+            fread(record, sizeof(Record), 1, fp);
+        	index++;
+            strcpy(tmpNew, record->word);
+            rtnval[index] = tmpNew;
+
+        }
+        rtnval[index+1] = NULL;
+        return rtnval;
     }
 }
 
@@ -152,6 +199,8 @@ int main() {
     insertWord(fp, "nagini");
     insertWord(fp, "firenze");
     countWords(fp, 'h', &wordCount);
-    printf("num of character n: %d", wordCount);
+    printf("num of character n: %d\n\n", wordCount);
+    char** a = getWords(fp, 'n');
+    printf("%s %s %s %s ", a[0],a[1],a[2],a[3]);
 
 }
